@@ -336,7 +336,28 @@ function AscendingDescending() {
     button.textContent = "Descending";
   }
 }
+var ascendingDescendin = 0;
+function SortedArray() {
+  let arraySort = taskBox.tasks;
+  if (ascendingDescendin == 0) {
+    arraySort.sort((one, two) => {
+      let d1 = new Date(one.time);
+      let d2 = new Date(two.time);
+      return d1 - d2;
+    });
+    ascendingDescendin = 1;
+  } else {
+    arraySort.sort((one, two) => {
+      let d1 = new Date(one.time);
+      let d2 = new Date(two.time);
+      return d2 - d1;
+    });
+    ascendingDescendin = 0;
+  }
 
+  let arrayString = arraySort.map((task) => `{${task.task} -${task.time}}`);
+  document.getElementById("placePrint").textContent = arrayString;
+}
 function AddPremium() {
   var tasktext = document.getElementById("inputTask").value;
   if (tasktext.length > 0) {
