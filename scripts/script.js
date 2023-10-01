@@ -259,6 +259,16 @@ function checkDone(){
         
     }
 }
+
+function rightNow(){
+       var Rand=Math.floor(Math.random()*taskBox.tasks.length)
+            let elementId = 'TaskCont_' + taskBox.tasks[Rand].task; 
+            let element = document.getElementById(elementId);
+            element.style.backgroundColor = "red";
+            
+        
+  
+}
 function DeleteDone(){
     
     taskBox.removeCompleted();
