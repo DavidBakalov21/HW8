@@ -1,6 +1,9 @@
+
+
 class Task{
-    constructor(task,isDone){
+    constructor(task,isDone, time){
         this.task=task;
+        this.time=time;
         this.isDone=isDone;
     }
     toggleDone(elId, stateT){
@@ -23,13 +26,13 @@ class Task{
         let InText = Input.value; 
        // divs.style.display = 'none'; 
         
-      
+        let currentDate = new Date();
         taskBox.tasks = taskBox.tasks.filter(t => t != this);
         
         var oldTaskCard = document.getElementById('TaskCont_' + this.task);
         oldTaskCard.parentNode.removeChild(oldTaskCard);
         
-        let newTask = new Task(InText, false);
+        let newTask = new Task(InText, false,currentDate);
         taskBox.addTask(newTask);
         let newTaskCard = document.getElementById('TaskCont').cloneNode(true);
         let newState = newTaskCard.querySelector('h4');
@@ -42,7 +45,7 @@ class Task{
         divsNew[0].addEventListener('click', () => newTask.toggleDone(newTaskCard, newState));
         divsNew[0].addEventListener("dblclick", () => newTask.ShowEdit(divsNew[2]));
         
-        let currentDate = new Date();
+        
         let newTime = newTaskCard.querySelector('p');
         newTime.textContent = currentDate;
         
@@ -60,10 +63,50 @@ class Task{
 
 
 class TodoItemPremium extends Task{
-    constructor(task,isDone, img){
-        super(task, isDone);
+    constructor(task,isDone,time, img){
+        super(task, isDone,time);
        
         this.img=img;
+    }
+
+    EditPrem(Input, taskBox, container){
+        taskBox.tasks = taskBox.tasks.filter(t => t != this);
+        
+        var oldTaskCard = document.getElementById('TaskCont_' + this.task);
+        oldTaskCard.parentNode.removeChild(oldTaskCard);
+        let tasktext = Input.value; 
+       // divs.style.display = 'none'; 
+        
+       let currentDate = new Date();
+       var task=new TodoItemPremium(tasktext,false, currentDate,'https://cdn-icons-png.flaticon.com/512/4345/4345573.png')
+     taskBox.addTask(task);
+     var container = document.getElementById("cont"); 
+     var newTaskInfo = document.getElementById('TaskContPrem').cloneNode(true);
+     var state =newTaskInfo.querySelector('h4')
+     var Input=newTaskInfo.querySelector('input')
+     newTaskInfo.querySelector('img').src =task.img;
+ 
+     Input.id="InputEdit"+tasktext
+     newTaskInfo.style.display='flex'
+     newTaskInfo.id = 'TaskCont_' + tasktext;
+ 
+ 
+         var divs =  newTaskInfo.querySelectorAll('div');
+         divs[0].addEventListener('click', () =>  task.toggleDone(newTaskInfo,state));
+        // divs[2].id="Edit_"+taskBox;
+         divs[0].addEventListener("dblclick",()=> task.ShowEdit(divs[2]))
+         //divs[2].
+         
+ 
+         var Time=newTaskInfo.querySelector('p')
+         Time.textContent=currentDate
+        var Text= newTaskInfo.querySelector('h3')
+        Text.textContent = tasktext;
+ var buttons= newTaskInfo.querySelectorAll('button');
+     buttons[0].addEventListener('click', () => taskBox.removeTask(task, newTaskInfo));
+     buttons[1].addEventListener('click', () => task.EditPrem(Input, taskBox, container));
+     
+     container.appendChild(newTaskInfo);
     }
 }
 
@@ -71,6 +114,7 @@ class TodoItemPremium extends Task{
 class BoxTasks{
     constructor(tasks){
         this.tasks=tasks;  
+        
     }
     addTask(task){
       
@@ -107,13 +151,105 @@ if (Sure=="Y"){
         container.innerHTML = '';  
         this.tasks = [];
 }
+    }else{
+        var container = document.getElementById('cont');
+        container.innerHTML = '';  
+        this.tasks = [];
+
     }  
-    }
-    
+    }    
 }
 
 
 let taskBox = new BoxTasks([]);
+
+
+
+
+
+
+window.addEventListener('beforeunload', function() {
+    console.log('Data before stringifying:', taskBox.tasks);
+    localStorage.setItem('Tasks', JSON.stringify(taskBox.tasks));
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+  let data = localStorage.getItem("Tasks");
+   let parsedJs = JSON.parse(data);
+for (let index = 0; index < parsedJs.length; index++) {
+    let parsedData = parsedJs[index]; 
+    console.log(Object.keys(parsedData).length);
+    console.log(parsedData.task);
+    if (Object.keys(parsedData).length<4){
+        let task=new Task(parsedData.task,parsedData.isDone, parsedData.time)
+      taskBox.addTask(task);
+      let container = document.getElementById("cont"); 
+      let newTaskInfo = document.getElementById('TaskCont').cloneNode(true);
+      let state =newTaskInfo.querySelector('h4')
+      let Input=newTaskInfo.querySelector('input')
+      Input.id="InputEdit"+parsedData.task
+      newTaskInfo.style.display='flex'
+      newTaskInfo.id = 'TaskCont_' + parsedData.task;
+  
+  
+          let divs =  newTaskInfo.querySelectorAll('div');
+          divs[0].addEventListener('click', () =>  task.toggleDone(newTaskInfo,state));
+          divs[0].addEventListener("dblclick",()=> task.ShowEdit(divs[2]))
+    
+          
+  
+          let Time=newTaskInfo.querySelector('p')
+          Time.textContent=parsedData.time
+         let Text= newTaskInfo.querySelector('h3')
+         Text.textContent = parsedData.task;
+  let buttons= newTaskInfo.querySelectorAll('button');
+      buttons[0].addEventListener('click', () => taskBox.removeTask(task, newTaskInfo));
+      buttons[1].addEventListener('click', () => task.Edit(Input, taskBox, container));
+      
+      container.appendChild(newTaskInfo);
+
+
+
+    }else{
+
+        //let currentDate = new Date();
+        let task=new TodoItemPremium(parsedData.task,parsedData.isDone, parsedData.time,parsedData.img)
+      taskBox.addTask(task);
+      let container = document.getElementById("cont"); 
+      let newTaskInfo = document.getElementById('TaskContPrem').cloneNode(true);
+      let state =newTaskInfo.querySelector('h4')
+      let Input=newTaskInfo.querySelector('input')
+      newTaskInfo.querySelector('img').src =parsedData.img;
+  
+      Input.id="InputEdit"+parsedData.task
+      newTaskInfo.style.display='flex'
+      newTaskInfo.id = 'TaskCont_' + parsedData.task;
+  
+  
+          let divs =  newTaskInfo.querySelectorAll('div');
+          divs[0].addEventListener('click', () =>  task.toggleDone(newTaskInfo,state));
+         // divs[2].id="Edit_"+taskBox;
+          divs[0].addEventListener("dblclick",()=> task.ShowEdit(divs[2]))
+          //divs[2].
+          
+  
+          let Time=newTaskInfo.querySelector('p')
+          Time.textContent=parsedData.time
+         let Text= newTaskInfo.querySelector('h3')
+         Text.textContent = parsedData.task;
+  let buttons= newTaskInfo.querySelectorAll('button');
+      buttons[0].addEventListener('click', () => taskBox.removeTask(task, newTaskInfo));
+      buttons[1].addEventListener('click', () => task.EditPrem(Input, taskBox, container));
+      
+      container.appendChild(newTaskInfo);  
+    }
+}
+
+
+
+
+   console.log(data);
+});
 function checkDone(){
 
     for (let index = 0; index < taskBox.tasks.length; index++) {
@@ -128,7 +264,14 @@ function DeleteDone(){
     taskBox.removeCompleted();
 
 }
-
+function clearStorage() {
+    localStorage.clear();
+    taskBox.tasks=[];
+    console.log(localStorage.getItem('Tasks'))
+    console.log(taskBox.tasks)
+    location.reload()
+    
+}
 
 function DeleteAll(){
     taskBox.removeAll();
@@ -145,7 +288,8 @@ document.addEventListener('keydown', function(event) {
 function Add(){
     var tasktext=document.getElementById("inputTask").value;
     if(tasktext.length>0){
-      var task=new Task(tasktext,false)
+        let currentDate = new Date();
+      var task=new Task(tasktext,false, currentDate)
     taskBox.addTask(task);
     var container = document.getElementById("cont"); 
     var newTaskInfo = document.getElementById('TaskCont').cloneNode(true);
@@ -161,7 +305,7 @@ function Add(){
        // divs[2].id="Edit_"+taskBox;
         divs[0].addEventListener("dblclick",()=> task.ShowEdit(divs[2]))
         //divs[2].
-        let currentDate = new Date();
+        
 
         var Time=newTaskInfo.querySelector('p')
         Time.textContent=currentDate
@@ -193,7 +337,8 @@ function AscendingDescending(){
 function AddPremium(){
     var tasktext=document.getElementById("inputTask").value;
     if(tasktext.length>0){
-      var task=new TodoItemPremium(tasktext,false,'https://cdn-icons-png.flaticon.com/512/4345/4345573.png')
+        let currentDate = new Date();
+      var task=new TodoItemPremium(tasktext,false, currentDate,'https://cdn-icons-png.flaticon.com/512/4345/4345573.png')
     taskBox.addTask(task);
     var container = document.getElementById("cont"); 
     var newTaskInfo = document.getElementById('TaskContPrem').cloneNode(true);
@@ -211,7 +356,7 @@ function AddPremium(){
        // divs[2].id="Edit_"+taskBox;
         divs[0].addEventListener("dblclick",()=> task.ShowEdit(divs[2]))
         //divs[2].
-        let currentDate = new Date();
+        
 
         var Time=newTaskInfo.querySelector('p')
         Time.textContent=currentDate
@@ -219,7 +364,7 @@ function AddPremium(){
        Text.textContent = tasktext;
 var buttons= newTaskInfo.querySelectorAll('button');
     buttons[0].addEventListener('click', () => taskBox.removeTask(task, newTaskInfo));
-    buttons[1].addEventListener('click', () => task.Edit(Input, taskBox, container));
+    buttons[1].addEventListener('click', () => task.EditPrem(Input, taskBox, container));
     
     container.appendChild(newTaskInfo);
     }else{
